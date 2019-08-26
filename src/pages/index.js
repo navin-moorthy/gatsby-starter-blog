@@ -1,54 +1,65 @@
 import React from "react"
 import { graphql, Link } from "gatsby"
-
+import styled from "styled-components"
 import Layout from "../components/layout"
-import Image from "../components/image"
-import SEO from "../components/seo"
 
-const IndexPage = ({
-  data: {
-    allMarkdownRemark: { totalCount, edges },
-  },
-}) => (
-  <Layout>
-    <SEO title="Home" />
-    <div>
-      <h1>Navin's Blog</h1>
-    </div>
-    {edges.map(
-      ({
-        node: {
-          id,
-          frontmatter: { date, description, title },
-          excerpt,
-        },
-      }) => (
-        <div key={id}>
-          <h2>
-            {title}-{date}
-          </h2>
-          <p>{excerpt}</p>
-        </div>
-      )
-    )}
-  </Layout>
-)
+const Title = styled.h1`
+  display: inline-block;
+`
 
-export default IndexPage
+const BlogTitle = styled.h3`
+  margin-bottom: 20px;
+  &:hover {
+    color: #1dcaff;
+  }
+`
+
+const BlogLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+`
+
+const BlogBody = styled.div`
+  margin-bottom: 50px;
+`
+
+export default ({ data }) => {
+  return (
+    <Layout>
+      <div>
+        <Title>Blog by Navin</Title>
+        <h4>{data.allMarkdownRemark.totalCount} Posts</h4>
+        {data.allMarkdownRemark.edges.map(({ node }) => (
+          <BlogBody key={node.id}>
+            <BlogLink to={node.fields.slug}>
+              <BlogTitle>
+                {node.frontmatter.title} <span>— {node.frontmatter.date}</span>
+              </BlogTitle>
+            </BlogLink>
+            <p>{node.frontmatter.description || node.excerpt}</p>
+          </BlogBody>
+        ))}
+      </div>
+    </Layout>
+  )
+}
 
 export const query = graphql`
   query {
-    allMarkdownRemark {
+    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
       totalCount
       edges {
         node {
           id
           frontmatter {
-            date
-            description
             title
+            date(formatString: "DD MMMM, YYYY")
+            description
           }
-          excerpt
+          fields {
+            slug
+          }
+          excerpt(truncate: true)
         }
       }
     }
