@@ -1,21 +1,56 @@
 import React from "react"
-import { Link } from "gatsby"
+import { graphql, Link } from "gatsby"
 
 import Layout from "../components/layout"
 import Image from "../components/image"
 import SEO from "../components/seo"
 
-const IndexPage = () => (
+const IndexPage = ({
+  data: {
+    allMarkdownRemark: { totalCount, edges },
+  },
+}) => (
   <Layout>
     <SEO title="Home" />
-    <h1>Hi people</h1>
-    <p>Welcome to your new Gatsby site.</p>
-    <p>Now go build something great.</p>
-    <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
-      <Image />
+    <div>
+      <h1>Navin's Blog</h1>
     </div>
-    <Link to="/page-2/">Go to page 2</Link>
+    {edges.map(
+      ({
+        node: {
+          id,
+          frontmatter: { date, description, title },
+          excerpt,
+        },
+      }) => (
+        <div key={id}>
+          <h2>
+            {title}-{date}
+          </h2>
+          <p>{excerpt}</p>
+        </div>
+      )
+    )}
   </Layout>
 )
 
 export default IndexPage
+
+export const query = graphql`
+  query {
+    allMarkdownRemark {
+      totalCount
+      edges {
+        node {
+          id
+          frontmatter {
+            date
+            description
+            title
+          }
+          excerpt
+        }
+      }
+    }
+  }
+`
